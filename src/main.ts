@@ -1,23 +1,21 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { configureSwagger } from './config/swagger/swagger.config';
-import { ConfigService } from '@nestjs/config';
+import ENV_VARS from './config/env';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const configService = app.get(ConfigService);
 
-  const port = configService.get<number>('PROJECT_PORT', 3000);
   app.enableCors({
     origin: true,
-    methods: 'GET, PUT, POST',
+    methods: 'PUT, POST, DELETE',
     allowedHeaders: 'Content-Type, Authorization',
     credentials: true,
   });
 
   configureSwagger(app);
-  await app.listen(port);
+  await app.listen(ENV_VARS.ProjectPort);
 
-  console.log(`Application is running on port ${port}`);
+  console.log(`Application is running on port ${ENV_VARS.ProjectPort}`);
 }
 bootstrap();
