@@ -73,25 +73,43 @@ export class UserService {
       for (let i = 0; i < users.length; i += this.batchSize) {
         const batchUsers = users.slice(i, i + this.batchSize);
 
-        await this.limitConcurrency(
-          batchUsers.map((user) => () => this.sendBirthdayEmail(user, today)),
+        const tasks = batchUsers.map(
+          (user) => () => this.sendBirthdayEmail(user, today),
         );
+        await this.limitConcurrency(tasks, this.concurrency);
       }
     } finally {
       this.isSendingEmails = false;
     }
   }
 
-  private async limitConcurrency(tasks: (() => Promise<any>)[]) {
+  private async limitConcurrency(
+    tasks: (() => Promise<any>)[],
+    concurrency: number,
+  ) {
     const results = [];
+    const runningTasks = [];
 
     for (const task of tasks) {
-      const result = await task();
+      if (runningTasks.length >= concurrency) {
+        await Promise.race(runningTasks);
+      }
+
+      const taskPromise = task();
+      runningTasks.push(taskPromise);
+      const result = await taskPromise;
+
       results.push(result);
+
+      const index = runningTasks.indexOf(taskPromise);
+      runningTasks.splice(index, 1);
     }
+
+    await Promise.all(runningTasks);
 
     return results;
   }
+
   async delete(dto: DeleteUserDTO) {
     return this.userRepository.delete(dto);
   }
