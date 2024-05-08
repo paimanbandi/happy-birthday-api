@@ -16,7 +16,6 @@ export class EmailQueue {
 
   private listenToFailures() {
     this.queue.on('failed', async (job, error) => {
-      // Handle failure event here
       console.error(`Job ${job.id} failed with error:`, error);
       this.logger.debug(error.stack);
       await this.recoverUnsentMessage(job);

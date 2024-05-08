@@ -14,16 +14,7 @@ export class EmailWorker {
     private readonly emailCacheRepository: EmailCacheRepository,
     private readonly httpService: HttpService,
     @InjectQueue('email') private readonly queue: Queue,
-  ) {
-    this.onRetrying();
-  }
-
-  private onRetrying() {
-    this.logger.debug('Listening for retrying event...');
-    this.queue.on('retrying', (job, error) => {
-      this.logger.debug(`Retrying job ${job.id}: ${error.stack}`);
-    });
-  }
+  ) {}
 
   generateEmailIdentifier(req: any): string {
     return `${req.todayUserBirthday}-${req.email}-${req.message}`;

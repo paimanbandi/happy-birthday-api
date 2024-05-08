@@ -4,6 +4,7 @@ import { CreateUserDTO } from 'src/dto/create-user.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import * as moment from 'moment-timezone';
 import { EmailQueue } from 'src/queue/email.queue';
+import { DeleteUserDTO } from 'src/dto/delete-user.dto';
 
 @Injectable()
 export class UserService {
@@ -55,5 +56,9 @@ export class UserService {
         }
       }
     });
+  }
+
+  async delete(dto: DeleteUserDTO) {
+    return this.userRepository.delete(dto);
   }
 }

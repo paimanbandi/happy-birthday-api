@@ -1,7 +1,8 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Post } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDTO } from 'src/dto/create-user.dto';
 import { ApiBody, ApiOperation } from '@nestjs/swagger';
+import { DeleteUserDTO } from 'src/dto/delete-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -48,7 +49,28 @@ export class UserController {
     },
   })
   @Post()
-  async createUser(@Body() dto: CreateUserDTO) {
+  async create(@Body() dto: CreateUserDTO) {
     return this.userService.create(dto);
+  }
+
+  @ApiOperation({
+    summary: 'Delete User',
+  })
+  @ApiBody({
+    description: 'DeleteUser',
+    type: DeleteUserDTO,
+    examples: {
+      a: {
+        summary: 'Delete User',
+        description: '-',
+        value: {
+          _id: '663ba401dc45ed7b60c4515e',
+        },
+      },
+    },
+  })
+  @Delete()
+  async delete(@Body() dto: DeleteUserDTO) {
+    return this.userService.delete(dto);
   }
 }
