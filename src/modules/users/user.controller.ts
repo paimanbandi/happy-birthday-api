@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Post, Put } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDTO } from 'src/dto/create-user.dto';
-import { ApiBody, ApiOperation } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam } from '@nestjs/swagger';
 import { DeleteUserDTO } from 'src/dto/delete-user.dto';
+import { UpdateUserDTO } from 'src/dto/update-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -32,6 +33,7 @@ export class UserController {
         value: {
           firstName: 'Bilal',
           lastName: 'King',
+          email: 'bilal.king@gmail.com',
           birthdayDate: '1990-09-12',
           location: 'America/Toronto',
         },
@@ -42,6 +44,7 @@ export class UserController {
         value: {
           firstName: 'James',
           lastName: 'Bond',
+          email: 'james.bond@gmail.com',
           birthdayDate: '1980-12-31',
           location: 'Australia/Melbourne',
         },
@@ -57,7 +60,7 @@ export class UserController {
     summary: 'Delete User',
   })
   @ApiBody({
-    description: 'DeleteUser',
+    description: 'Delete User',
     type: DeleteUserDTO,
     examples: {
       a: {
@@ -72,5 +75,35 @@ export class UserController {
   @Delete()
   async delete(@Body() dto: DeleteUserDTO) {
     return this.userService.delete(dto);
+  }
+
+  @ApiOperation({
+    summary: 'Update User',
+  })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    description: 'The ID of User',
+  })
+  @ApiBody({
+    description: 'Update User',
+    type: UpdateUserDTO,
+    examples: {
+      a: {
+        summary: 'Update User',
+        description: '-',
+        value: {
+          firstName: 'Peter',
+          lastName: 'Parker',
+          email: 'peter.parker@gmail.com',
+          birthdayDate: '1995-10-25',
+          location: 'Australia/Melbourne',
+        },
+      },
+    },
+  })
+  @Put(':id')
+  async update(@Param('id') id: string, @Body() dto: UpdateUserDTO) {
+    return this.userService.update(id, dto);
   }
 }
