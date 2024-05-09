@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { CreateUserDTO } from 'src/dto/create-user.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -22,7 +22,12 @@ export class UserService {
   private readonly logger = new Logger(UserService.name);
 
   async create(dto: CreateUserDTO) {
-    return this.userRepository.create(dto);
+    const user = await this.userRepository.findByEmail(dto.email);
+    this.logger.debug(user);
+    if (user) {
+      throw new HttpException('User already exists', HttpStatus.CONFLICT);
+    }
+    return await this.userRepository.create(dto);
   }
 
   async sendBirthdayEmail(user: Partial<User>, today: moment.Moment) {

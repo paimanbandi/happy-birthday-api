@@ -13,8 +13,12 @@ export class UserRepository {
     return await this.userModel.create(dto);
   }
 
+  async findByEmail(email: string): Promise<HydratedUser[]> {
+    return await this.userModel.findOne({ email });
+  }
+
   async find(): Promise<HydratedUser[]> {
-    return await this.userModel.find().exec();
+    return await this.userModel.find();
   }
 
   async delete(dto: DeleteUserDTO): Promise<HydratedUser> {
