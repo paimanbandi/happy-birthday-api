@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import { UserRepository } from './user.repository';
 import { getModelToken } from '@nestjs/mongoose';
 import { NestUserProvider, User } from 'src/schemas/user.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { EmailQueue } from 'src/queue/email.queue';
 import { EmailWorker } from 'src/workers/email.worker';
 import { DatabaseModule } from 'src/config/db/module.db';
@@ -13,6 +13,7 @@ import { UserController } from './user.controller';
 import { BullModule } from '@nestjs/bull';
 import { HttpModule } from '@nestjs/axios';
 import { DeleteUserDTO } from 'src/dto/delete-user.dto';
+import { UpdateUserDTO } from 'src/dto/update-user.dto';
 
 const firstNames: string[] = [
   'John',
@@ -104,6 +105,7 @@ function generateRandomTimezone(): string {
 
 describe('UserService', () => {
   let userService: UserService;
+  let userRepository: UserRepository;
   let model: Model<User>;
 
   const createUserDTO = {
@@ -114,10 +116,24 @@ describe('UserService', () => {
     location: generateRandomTimezone(),
   };
 
+  const mockUser = {
+    _id: new Types.ObjectId('663c996f1216827de0e1484f'),
+    firstName: 'Paiman',
+    lastName: 'Bandi',
+    email: 'paiman.bandi@gmail.com',
+    birthdayDate: '1988-07-05',
+    location: 'Asia/Jakarta',
+  };
+
   const mockUserService = {
     create: jest.fn(),
-    find: jest.fn(),
     deleteOne: jest.fn(),
+    update: jest.fn(),
+    findByIdAndUpdate: jest.fn(),
+  };
+
+  const mockUserRepository = {
+    findLatestOne: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -144,6 +160,7 @@ describe('UserService', () => {
     }).compile();
 
     userService = module.get<UserService>(UserService);
+    userRepository = module.get<UserRepository>(UserRepository);
     model = module.get<Model<User>>(getModelToken(User.name));
   });
 
@@ -159,20 +176,34 @@ describe('UserService', () => {
 
   describe('delete', () => {
     it('should delete a user and return the deleted data', async () => {
-      jest.spyOn(model, 'find').mockResolvedValue([]);
-      const usersList = await userService.find();
-      const deleteUserDTO: DeleteUserDTO = {
-        _id: usersList[0]._id.toString(),
-      };
-      const mockResult = {
-        acknowledged: true,
-        deletedCount: 1,
-      };
-      jest.spyOn(model, 'deleteOne').mockResolvedValue(mockResult);
+      const willBeDeletedUser = await userRepository.findLatestOne();
+      jest
+        .spyOn(model, 'deleteOne')
+        .mockResolvedValue({ _id: mockUser._id.toString() } as any);
 
-      const response = await userService.deleteOne(deleteUserDTO);
-      console.debug(response);
-      expect(response.deletedCount).toBe(1);
+      const deleteUserDTO: DeleteUserDTO = {
+        _id: willBeDeletedUser._id.toString(),
+      };
+      const result = await userService.deleteOne(deleteUserDTO);
+
+      expect(result.deletedCount).toEqual(1);
+    });
+  });
+
+  describe('update', () => {
+    it('should update a user and return the updated data', async () => {
+      const willBeUpdatedUser = await userRepository.findLatestOne();
+      const updatedBook = { ...mockUser, birthdayDate: '1988-12-04' };
+      const user = { birthdayDate: '1988-11-04' };
+
+      jest.spyOn(model, 'findByIdAndUpdate').mockResolvedValue(updatedBook);
+
+      const result = await userService.update(
+        willBeUpdatedUser._id.toString(),
+        user as any,
+      );
+
+      expect(result.birthdayDate).toEqual(user.birthdayDate);
     });
   });
 });

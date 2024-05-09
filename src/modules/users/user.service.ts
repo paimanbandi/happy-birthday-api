@@ -124,11 +124,15 @@ export class UserService {
     return await this.userRepository.find();
   }
 
+  async findById(id: string): Promise<HydratedUser> {
+    return await this.userRepository.findById(id);
+  }
+
   async deleteOne(dto: DeleteUserDTO) {
     if (!isValidStringObjectId(dto._id)) {
       throw new BadRequestException('Please input the valid _id');
     }
-    const user = await this.userRepository.findById(dto._id);
+    const user = await this.findById(dto._id);
     if (user) {
       return await this.userRepository.deleteOne(dto);
     }
@@ -136,6 +140,13 @@ export class UserService {
   }
 
   async update(id: string, dto: UpdateUserDTO) {
-    return await this.userRepository.update(id, dto);
+    if (!isValidStringObjectId(id)) {
+      throw new BadRequestException('Please input the valid _id');
+    }
+    const user = await this.findById(id);
+    if (user) {
+      return await this.userRepository.update(id, dto);
+    }
+    throw new BadRequestException(`User with _id ${id} not found`);
   }
 }

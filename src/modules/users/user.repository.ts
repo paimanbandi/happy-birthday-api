@@ -21,9 +21,14 @@ export class UserRepository {
     return await this.userModel.find();
   }
 
-  async findById(id: string): Promise<HydratedUser[]> {
+  async findLatestOne(): Promise<HydratedUser> {
+    return await this.userModel.findOne().sort({ createdAt: -1 });
+  }
+
+  async findById(id: string): Promise<HydratedUser> {
     return await this.userModel.findById(id);
   }
+
   async deleteOne(dto: DeleteUserDTO) {
     return await this.userModel.deleteOne({ _id: dto._id });
   }
