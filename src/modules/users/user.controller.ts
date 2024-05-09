@@ -74,7 +74,7 @@ export class UserController {
   })
   @Delete()
   async delete(@Body() dto: DeleteUserDTO) {
-    return this.userService.delete(dto);
+    return this.userService.deleteOne(dto);
   }
 
   @ApiOperation({

@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import { UserRepository } from './user.repository';
 import { getModelToken } from '@nestjs/mongoose';
 import { NestUserProvider, User } from 'src/schemas/user.schema';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { EmailQueue } from 'src/queue/email.queue';
 import { EmailWorker } from 'src/workers/email.worker';
 import { DatabaseModule } from 'src/config/db/module.db';
@@ -12,6 +12,7 @@ import { NestEmailCacheProvider } from 'src/schemas/email-cache.schema';
 import { UserController } from './user.controller';
 import { BullModule } from '@nestjs/bull';
 import { HttpModule } from '@nestjs/axios';
+import { DeleteUserDTO } from 'src/dto/delete-user.dto';
 
 const firstNames: string[] = [
   'John',
@@ -113,16 +114,10 @@ describe('UserService', () => {
     location: generateRandomTimezone(),
   };
 
-  const mockUser = {
-    _id: new Types.ObjectId('663bb377fe3fa039464ceb28'),
-    firstName: 'Paiman',
-    lastName: 'Bandi',
-    email: 'paiman.bandi@gmail.com',
-    birthdayDate: '1988-05-09',
-    location: 'Asia/Jakarta',
-  };
   const mockUserService = {
     create: jest.fn(),
+    find: jest.fn(),
+    deleteOne: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -154,11 +149,30 @@ describe('UserService', () => {
 
   describe('create', () => {
     it('should create a user and return data containing the properties specified in the createUserDTO', async () => {
-      jest.spyOn(model, 'create').mockResolvedValue(mockUser as any);
+      jest.spyOn(model, 'create').mockResolvedValue(createUserDTO as any);
       const result = await userService.create(createUserDTO);
       console.debug('createUserDTO', createUserDTO);
       console.debug('result', result);
       expect(result).toEqual(expect.objectContaining(createUserDTO));
+    });
+  });
+
+  describe('delete', () => {
+    it('should delete a user and return the deleted data', async () => {
+      jest.spyOn(model, 'find').mockResolvedValue([]);
+      const usersList = await userService.find();
+      const deleteUserDTO: DeleteUserDTO = {
+        _id: usersList[0]._id.toString(),
+      };
+      const mockResult = {
+        acknowledged: true,
+        deletedCount: 1,
+      };
+      jest.spyOn(model, 'deleteOne').mockResolvedValue(mockResult);
+
+      const response = await userService.deleteOne(deleteUserDTO);
+      console.debug(response);
+      expect(response.deletedCount).toBe(1);
     });
   });
 });

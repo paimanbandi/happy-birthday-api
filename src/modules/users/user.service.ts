@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { CreateUserDTO } from 'src/dto/create-user.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
@@ -6,7 +11,8 @@ import * as moment from 'moment-timezone';
 import { EmailQueue } from 'src/queue/email.queue';
 import { DeleteUserDTO } from 'src/dto/delete-user.dto';
 import { UpdateUserDTO } from 'src/dto/update-user.dto';
-import { User } from 'src/schemas/user.schema';
+import { HydratedUser, User } from 'src/schemas/user.schema';
+import { isValidStringObjectId } from 'src/validators/string-object-id.validator';
 
 @Injectable()
 export class UserService {
@@ -24,7 +30,7 @@ export class UserService {
   async create(dto: CreateUserDTO) {
     const user = await this.userRepository.findByEmail(dto.email);
     if (user) {
-      throw new HttpException('User already exists', HttpStatus.CONFLICT);
+      throw new ConflictException('User already exists');
     }
     return await this.userRepository.create(dto);
   }
@@ -72,7 +78,7 @@ export class UserService {
     try {
       this.isSendingEmails = true;
 
-      const users = await this.userRepository.find();
+      const users = await this.find();
       const today = moment();
       for (let i = 0; i < users.length; i += this.batchSize) {
         const batchUsers = users.slice(i, i + this.batchSize);
@@ -114,11 +120,22 @@ export class UserService {
     return results;
   }
 
-  async delete(dto: DeleteUserDTO) {
-    return this.userRepository.delete(dto);
+  async find(): Promise<HydratedUser[]> {
+    return await this.userRepository.find();
+  }
+
+  async deleteOne(dto: DeleteUserDTO) {
+    if (!isValidStringObjectId(dto._id)) {
+      throw new BadRequestException('Please input the valid _id');
+    }
+    const user = await this.userRepository.findById(dto._id);
+    if (user) {
+      return await this.userRepository.deleteOne(dto);
+    }
+    throw new BadRequestException(`User with _id ${dto._id} not found`);
   }
 
   async update(id: string, dto: UpdateUserDTO) {
-    return this.userRepository.update(id, dto);
+    return await this.userRepository.update(id, dto);
   }
 }
