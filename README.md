@@ -25,5 +25,8 @@ $ yarn start
 
 # watch mode
 $ yarn start:dev
+
+# testing
+$ yarn test
 ```
 

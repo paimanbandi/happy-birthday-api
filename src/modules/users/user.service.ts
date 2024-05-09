@@ -23,7 +23,6 @@ export class UserService {
 
   async create(dto: CreateUserDTO) {
     const user = await this.userRepository.findByEmail(dto.email);
-    this.logger.debug(user);
     if (user) {
       throw new HttpException('User already exists', HttpStatus.CONFLICT);
     }
