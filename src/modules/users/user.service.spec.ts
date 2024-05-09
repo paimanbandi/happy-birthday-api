@@ -13,7 +13,6 @@ import { UserController } from './user.controller';
 import { BullModule } from '@nestjs/bull';
 import { HttpModule } from '@nestjs/axios';
 import { DeleteUserDTO } from 'src/dto/delete-user.dto';
-import { UpdateUserDTO } from 'src/dto/update-user.dto';
 
 const firstNames: string[] = [
   'John',
@@ -132,10 +131,6 @@ describe('UserService', () => {
     findByIdAndUpdate: jest.fn(),
   };
 
-  const mockUserRepository = {
-    findLatestOne: jest.fn(),
-  };
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
@@ -168,8 +163,6 @@ describe('UserService', () => {
     it('should create a user and return data containing the properties specified in the createUserDTO', async () => {
       jest.spyOn(model, 'create').mockResolvedValue(createUserDTO as any);
       const result = await userService.create(createUserDTO);
-      console.debug('createUserDTO', createUserDTO);
-      console.debug('result', result);
       expect(result).toEqual(expect.objectContaining(createUserDTO));
     });
   });

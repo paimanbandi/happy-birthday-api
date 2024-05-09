@@ -9,8 +9,7 @@ async function bootstrap() {
   app.enableCors({
     origin: true,
     methods: 'PUT, POST, DELETE',
-    allowedHeaders: 'Content-Type, Authorization',
-    credentials: true,
+    allowedHeaders: 'Content-Type',
   });
 
   configureSwagger(app);

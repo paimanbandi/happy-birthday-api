@@ -1,7 +1,6 @@
 import { HttpService } from '@nestjs/axios';
-import { InjectQueue, Process, Processor } from '@nestjs/bull';
+import { Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
-import { Queue } from 'bull';
 import { CreateEmailCacheDTO } from 'src/dto/create-email-cache.dto';
 import { EmailCacheRepository } from 'src/modules/email-caches/email-cache.repository';
 
@@ -13,7 +12,6 @@ export class EmailWorker {
   constructor(
     private readonly emailCacheRepository: EmailCacheRepository,
     private readonly httpService: HttpService,
-    @InjectQueue('email') private readonly queue: Queue,
   ) {}
 
   generateEmailIdentifier(req: any): string {

@@ -12,8 +12,7 @@ export function IsTimeZoneFormat(validationOptions?: ValidationOptions) {
       propertyName: propertyName,
       options: validationOptions,
       validator: {
-        validate(value: any, args: ValidationArguments) {
-          // Regular expression to match timezone format (Continent/City)
+        validate(value: any, _: ValidationArguments) {
           const timeZoneRegex = /^[a-zA-Z]+\/[a-zA-Z_]+$/;
           return typeof value === 'string' && timeZoneRegex.test(value);
         },

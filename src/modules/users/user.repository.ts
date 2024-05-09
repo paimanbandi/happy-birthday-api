@@ -1,5 +1,5 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { Model, isValidObjectId } from 'mongoose';
+import { Inject, Injectable } from '@nestjs/common';
+import { Model } from 'mongoose';
 import { CreateUserDTO } from 'src/dto/create-user.dto';
 import { DeleteUserDTO } from 'src/dto/delete-user.dto';
 import { UpdateUserDTO } from 'src/dto/update-user.dto';
