@@ -139,7 +139,7 @@ describe('UserService', () => {
       imports: [
         DatabaseModule,
         HttpModule,
-        BullModule.registerQueue({ name: 'email' }),
+        BullModule.registerQueue({ name: 'birthday_email' }),
       ],
       controllers: [UserController],
       providers: [

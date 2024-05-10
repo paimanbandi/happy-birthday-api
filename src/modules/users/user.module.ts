@@ -15,7 +15,7 @@ import { NestEmailCacheProvider } from 'src/schemas/email-cache.schema';
   imports: [
     DatabaseModule,
     HttpModule,
-    BullModule.registerQueue({ name: 'email' }),
+    BullModule.registerQueue({ name: 'birthday_email' }),
   ],
   controllers: [UserController],
   providers: [

@@ -6,7 +6,7 @@ import { Queue, Job } from 'bull';
 export class EmailQueue {
   private readonly logger = new Logger(EmailQueue.name);
 
-  constructor(@InjectQueue('email') private readonly queue: Queue) {
+  constructor(@InjectQueue('birthday_email') private readonly queue: Queue) {
     this.listenToFailures();
   }
 

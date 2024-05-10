@@ -5,7 +5,7 @@ import { CreateEmailCacheDTO } from 'src/dto/create-email-cache.dto';
 import { EmailCacheRepository } from 'src/modules/email-caches/email-cache.repository';
 
 @Injectable()
-@Processor('email')
+@Processor('birthday_email')
 export class EmailWorker {
   private readonly logger = new Logger(EmailWorker.name);
 
@@ -19,7 +19,7 @@ export class EmailWorker {
   }
 
   @Process()
-  async sendEmail(job: any): Promise<void> {
+  async sendBirthdayEmail(job: any): Promise<void> {
     try {
       const { email, message } = job.data;
 
@@ -27,7 +27,7 @@ export class EmailWorker {
       const emailCache =
         await this.emailCacheRepository.findByIdentifier(identifier);
       if (emailCache) {
-        this.logger.debug(`Email already sent before: ${identifier}`);
+        this.logger.debug(`Birthday email already sent before: ${identifier}`);
         return;
       }
       const headers = {
