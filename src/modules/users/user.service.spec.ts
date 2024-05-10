@@ -13,6 +13,7 @@ import { UserController } from './user.controller';
 import { BullModule } from '@nestjs/bull';
 import { HttpModule } from '@nestjs/axios';
 import { DeleteUserDTO } from 'src/dto/delete-user.dto';
+import * as moment from 'moment-timezone';
 
 const firstNames: string[] = [
   'John',
@@ -106,6 +107,7 @@ describe('UserService', () => {
   let userService: UserService;
   let userRepository: UserRepository;
   let model: Model<User>;
+  let emailQueue: EmailQueue;
 
   const createUserDTO = {
     firstName: firstNames[Math.floor(Math.random() * firstNames.length)],
@@ -129,6 +131,7 @@ describe('UserService', () => {
     deleteOne: jest.fn(),
     update: jest.fn(),
     findByIdAndUpdate: jest.fn(),
+    sendBirthdayEmail: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -157,6 +160,7 @@ describe('UserService', () => {
     userService = module.get<UserService>(UserService);
     userRepository = module.get<UserRepository>(UserRepository);
     model = module.get<Model<User>>(getModelToken(User.name));
+    emailQueue = module.get<EmailQueue>(EmailQueue);
   });
 
   describe('create', () => {
@@ -197,6 +201,23 @@ describe('UserService', () => {
       );
 
       expect(result.birthdayDate).toEqual(user.birthdayDate);
+    });
+  });
+
+  describe('send birthday email', () => {
+    it('should execute the email queue to send email', async () => {
+      jest.spyOn(userService, 'sendBirthdayEmail').mockResolvedValue({
+        status: 'sent',
+        sentTime: '2024-05-01T14:48:00.000Z',
+      } as any);
+      const today = moment();
+
+      const result = await userService.sendBirthdayEmail(mockUser, today);
+      expect(userService.sendBirthdayEmail).toHaveBeenCalled();
+      expect(userService.sendBirthdayEmail).toHaveBeenCalledWith(
+        mockUser,
+        today,
+      );
     });
   });
 });

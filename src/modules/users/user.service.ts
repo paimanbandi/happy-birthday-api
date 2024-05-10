@@ -60,7 +60,7 @@ export class UserService {
         };
         this.logger.debug(req);
 
-        await this.emailQueue.addEmailTask(req);
+        return await this.emailQueue.addEmailTask(req);
       } catch (error) {
         console.error('Failed to send birthday email:', error.response);
       }
