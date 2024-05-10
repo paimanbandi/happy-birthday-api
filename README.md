@@ -1,5 +1,5 @@
 # happy-birthday-api
-A simple application to send a happy birthday message to users on their birthday
+A simple NestJS application to send a happy birthday message to users on their birthday
 at exactly 9 am on their local time.
 
 ## Requirements
@@ -8,8 +8,8 @@ at exactly 9 am on their local time.
 - Redis
 
 ## Setup
-- Create .env file in the root of project
-- Put environtment variables in the .env.example to the .env file
+- Rename `.env.example` file to `.env` adjust the value of environment variables
+  with your setup
 
 ## Installation
 

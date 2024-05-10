@@ -212,7 +212,7 @@ describe('UserService', () => {
       } as any);
       const today = moment();
 
-      const result = await userService.sendBirthdayEmail(mockUser, today);
+      await userService.sendBirthdayEmail(mockUser, today);
       expect(userService.sendBirthdayEmail).toHaveBeenCalled();
       expect(userService.sendBirthdayEmail).toHaveBeenCalledWith(
         mockUser,
